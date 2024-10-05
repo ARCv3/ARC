@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+
+  mongo:
+    image: mongo:7.0
+    container_name: mongo
+    restart: always
+    networks:
+      - common-net
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+      - ./keys/mongo.keyfile:/data/mongo.keyfile
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/arc3 --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+      
+  mongo_admin_ui:
+      image: mongo-express
+      environment:
+        - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+        - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+        - ME_CONFIG_MONGODB_SERVER=mongo
+      container_name: mongo_admin_ui
+      ports:
+        - 8081:8081
+      networks:
+        - common-net
+      depends_on:
+        mongo:
+          condition: service_healthy
+
+  arc3:
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    image: arc3
+    build:
+      dockerfile: arc3.Dockerfile
+    container_name: arc3
+    networks:
+      - common-net
+
+  arc-api:
+    env_file:
+      - .env
+    depends_on:
+      - arc3
+    image: arc3-api
+    build:
+      dockerfile: arc3-api.Dockerfile
+      args:
+        - fullchain=${FULLCHAIN}
+        - privkey=${PRIVKEY}
+    container_name: arc3-api
+    ports:
+      - 3030:3030
+    networks:
+      - common-net
+
+  arc-tasks:
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    image: arc-tasks
+    build: 
+      dockerfile: arc3-tasks.Dockerfile
+    container_name: arc3-tasks
+    networks:
+      - common-net
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.data-compliance.schedule: "@every 12h"
+      ofelia.job-exec.data-compliance.command: "node data-compliance.js"
+      ofelia.job-exec.backup-db.schedule: "@every 24h"
+      ofelia.job-exec.backup-db.command: "node backup-db.js Guilds appeals comments guild_configs transcripts user_notes"
+    volumes:
+      - ./db-backups:/app/out
+
+  scheduler:
+    container_name: scheduler
+    networks:
+      - common-net
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - arc-tasks
+    command: daemon --docker -f label=com.docker.compose.project=${COMPOSE_PROJECT_NAME}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  common-net: {}
+
+volumes:
+  mongo_data:
+  mongo_config:
