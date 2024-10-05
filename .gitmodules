@@ -1,0 +1,12 @@
+[submodule "ARC3-TASKS"]
+	path = ARC3-TASKS
+	url = https://github.com/ARCv3/ARC3-TASKS
+[submodule "ARC3-DASH"]
+	path = ARC3-DASH
+	url = https://github.com/ARCv3/ARC3-DASH
+[submodule "ARC3-API"]
+	path = ARC3-API
+	url = https://github.com/ARCv3/ARC3-API
+[submodule "ARC3"]
+	path = ARC3
+	url = https://github.com/ARCv3/ARC3
