@@ -18,8 +18,7 @@ RUN node --max-old-space-size=1000 $(which npm) ci
 COPY --from=build-step /app/build /app/build
 COPY ./keys /keys
 COPY ./ARC3-API/src /app/src
-COPY ./ARC3-API/bin /app/bin
-COPY ./ARC3-API/__tests__ ./__tests__
+COPY ./ARC3-API/bin /app/bin 
 
 ENTRYPOINT [ "node", "--max-old-space-size=512", "bin/www" ]
 
