@@ -20,9 +20,11 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: submodules-init
+      uses: snickerbockers/submodules-init@v4
     - name: Restore dependencies
-      working-directory: Arc3
+      working-directory: ARC3
       run: dotnet restore
     - name: Build
-      working-directory: Arc3
+      working-directory: ARC3
       run: dotnet build --no-restore

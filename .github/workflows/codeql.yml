@@ -59,7 +59,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
+    - name: submodules-init
+      uses: snickerbockers/submodules-init@v4
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -82,7 +83,7 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        cd Arc3
+        cd ARC3
         dotnet restore
         dotnet build
       
@@ -91,7 +92,7 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
-        working-directory: Arc3
+        working-directory: ARC3
 
     - name: Perform CodeQL Analysis
       if: matrix.language != 'csharp'
