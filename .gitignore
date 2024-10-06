@@ -52,7 +52,8 @@ Generated\ Files/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
-keys
+keys/**.pem
+keys/**.keyfile
 
 
 # Build Results of an ATL Project
