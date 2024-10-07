@@ -23,7 +23,7 @@ jobs:
           script: echo ${{ vars.ENV }} >> github
   ssh-deploy-prod:
     runs-on: ubuntu-latest
-    environment: PROD
+    environment: LIVE
     steps:
       - name: ssh-deploy
         uses: appleboy/ssh-action@v1.1.0
