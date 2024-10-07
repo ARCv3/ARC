@@ -9,9 +9,21 @@ permissions:
   contents: read
 
 jobs:
-  ssh-deploy:
+  ssh-deploy-stg:
     runs-on: ubuntu-latest
     environment: STAGE
+    steps:
+      - name: ssh-deploy
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: echo ${{ vars.ENV }} >> github
+  ssh-deploy-prod:
+    runs-on: ubuntu-latest
+    environment: PROD
     steps:
       - name: ssh-deploy
         uses: appleboy/ssh-action@v1.1.0
