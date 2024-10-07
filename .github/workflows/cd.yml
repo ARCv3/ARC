@@ -1,0 +1,27 @@
+name: ssh-deploy
+on: 
+  push:
+    branches:
+      - main
+      
+permissions:
+  contents: read
+
+jobs:
+
+  ssh-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ssh-deploy
+        uses: D3rHase/ssh-command-action@latest
+        with:
+          host: izzydotexe.com
+          # ssh port of the server
+          port: 22
+          # user of the server
+          user: root
+          # private ssh key registered on the server
+          private_key: ${{ secrets.PRIVATE_KEY }}
+          # command to be executed
+          command: echo 'hello world'
+              
