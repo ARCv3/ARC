@@ -9,9 +9,9 @@ permissions:
   contents: read
 
 jobs:
-
   ssh-deploy:
     runs-on: ubuntu-latest
+    environment: STAGE
     steps:
       - name: ssh-deploy
         uses: appleboy/ssh-action@v1.1.0
