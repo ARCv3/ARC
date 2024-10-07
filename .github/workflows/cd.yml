@@ -14,15 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ssh-deploy
-        uses: invi5H/ssh-action@v1.1.0
+        uses: appleboy/ssh-action@v1.1.0
         with:
-          # A unique name for the server
-          NAME: stage-server
-          # The SSH username
-          SSH_USER: ${{ secrets.SSH_USER }}
-          # The hostname or the IP address
-          SSH_HOST:  ${{ secrets.SSH_HOST }}
-          # The SSH port
-          SSH_PORT:  ${{ secrets.SSH_PORT }}
-          # The full string SSH key
-          SSH_KEY:  ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: whoami
