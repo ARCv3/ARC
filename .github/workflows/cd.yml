@@ -14,15 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ssh-deploy
-        uses: D3rHase/ssh-command-action@latest
+        uses: invi5H/ssh-action@v1.0.0
         with:
-          host: izzydotexe.com
-          # ssh port of the server
-          port: 22
-          # user of the server
-          user: root
-          # private ssh key registered on the server
-          private_key: ${{ secrets.PRIVATE_KEY }}
-          # command to be executed
-          command: echo 'hello world'
-              
+          # A unique name for the server
+          NAME: stage-server
+          # The SSH username
+          SSH_USER: ${{ secrets.SSH_USER }}
+          # The hostname or the IP address
+          SSH_HOST:  ${{ secrets.SSH_HOST }}
+          # The SSH port
+          SSH_PORT:  ${{ secrets.SSH_PORT }}
+          # The full string SSH key
+          SSH_KEY:  ${{ secrets.SSH_KEY }}
