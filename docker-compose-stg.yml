@@ -6,7 +6,7 @@ services:
   mongo-stg:
     image: mongo:7.0
     env_file:
-      - .env-stg
+      - .env
     container_name: mongo-stg
     restart: always
     networks:
@@ -30,7 +30,7 @@ services:
   mongo_admin_ui:
       image: mongo-express
       env_file:
-        - .env-stg
+        - .env
       environment:
         - ME_CONFIG_MONGODB_ADMINUSERNAME=root
         - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -48,7 +48,7 @@ services:
 
   arc3-stg:
     env_file:
-      - .env-stg
+      - .env
     depends_on:
       - mongo-stg
     image: arc3-stg
@@ -60,7 +60,7 @@ services:
 
   arc-api-stg:
     env_file:
-      - .env-stg
+      - .env
     depends_on:
       - arc3-stg
     image: arc3-api-stg
@@ -78,7 +78,7 @@ services:
 
   arc-tasks-stg:
     env_file:
-      - .env-stg
+      - .env
     depends_on:
       - mongo-stg
     image: arc-tasks-stg
