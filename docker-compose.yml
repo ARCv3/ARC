@@ -4,6 +4,8 @@ services:
 
   mongo:
     image: mongo:7.0
+    env_file:
+      - .env
     container_name: mongo
     restart: always
     networks:
@@ -23,23 +25,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 40s
-      
-  mongo_admin_ui:
-      image: mongo-express
-      environment:
-        - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-        - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-        - ME_CONFIG_MONGODB_SERVER=mongo
-        - ME_CONFIG_BASICAUTH_USERNAME=admin
-        - ME_CONFIG_BASICAUTH_PASSWORD=${EXPRESS_PWRD}
-      container_name: mongo_admin_ui
-      ports:
-        - 8081:8081
-      networks:
-        - common-net
-      depends_on:
-        mongo:
-          condition: service_healthy
 
   arc3:
     env_file:

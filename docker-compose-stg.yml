@@ -1,0 +1,104 @@
+version: '3.8'
+name: arc-stg
+
+services:
+  
+  mongo-stg:
+    image: mongo:7.0
+    env_file:
+      - .env-stg
+    container_name: mongo-stg
+    restart: always
+    networks:
+      - common-net-stg
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_data_stg:/data/db
+      - mongo_config_stg:/data/configdb
+      - ./keys/mongo.keyfile:/data/mongo.keyfile
+    ports:
+      - 27018:27017
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo-stg:27017/arc3 --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+      
+  mongo_admin_ui:
+      image: mongo-express
+      env_file:
+        - .env-stg
+      environment:
+        - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+        - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+        - ME_CONFIG_MONGODB_SERVER=mongo-stg
+        - ME_CONFIG_BASICAUTH_USERNAME=admin
+        - ME_CONFIG_BASICAUTH_PASSWORD=${EXPRESS_PWRD}
+      container_name: mongo_admin_ui
+      ports:
+        - 8081:8081
+      networks:
+        - common-net-stg
+      depends_on:
+        mongo-stg:
+          condition: service_healthy
+
+  arc3-stg:
+    env_file:
+      - .env-stg
+    depends_on:
+      - mongo-stg
+    image: arc3-stg
+    build:
+      dockerfile: arc3.Dockerfile
+    container_name: arc3-stg
+    networks:
+      - common-net-stg
+
+  arc-api-stg:
+    env_file:
+      - .env-stg
+    depends_on:
+      - arc3-stg
+    image: arc3-api-stg
+    build:
+      dockerfile: arc3-api.Dockerfile
+      args:
+        - fullchain=${FULLCHAIN}
+        - privkey=${PRIVKEY}
+    container_name: arc3-api-stg
+    restart: on-failure
+    ports:
+      - 3040:3030
+    networks:
+      - common-net-stg
+
+  arc-tasks-stg:
+    env_file:
+      - .env-stg
+    depends_on:
+      - mongo-stg
+    image: arc-tasks-stg
+    build: 
+      dockerfile: arc3-tasks.Dockerfile
+    container_name: arc3-tasks-stg
+    networks:
+      - common-net-stg
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.data-compliance.schedule: "@every 12h"
+      ofelia.job-exec.data-compliance.command: "node data-compliance.js"
+      ofelia.job-exec.backup-db.schedule: "@every 24h"
+      ofelia.job-exec.backup-db.command: "node backup-db.js Guilds appeals comments guild_configs transcripts user_notes"
+    volumes:
+      - ./db-backups:/app/out
+
+networks:
+  common-net-stg: {}
+
+volumes:
+  mongo_data_stg:
+  mongo_config_stg:
