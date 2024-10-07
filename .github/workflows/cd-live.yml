@@ -1,17 +1,16 @@
-name: ssh-deploy
+name: ssh-deploy-prod
 on: 
-  pull_request:
   push:
     branches:
-      - main
+      - live
       
 permissions:
   contents: read
 
 jobs:
-  ssh-deploy-stg:
+  ssh-deploy-prod:
     runs-on: ubuntu-latest
-    environment: STAGE
+    environment: LIVE
     steps:
       - name: ssh-deploy
         uses: appleboy/ssh-action@v1.1.0
