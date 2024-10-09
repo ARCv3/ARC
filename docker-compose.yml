@@ -3,6 +3,8 @@ version: '3.8'
 services:
 
   uptime-kuma:
+      env_file:
+        - .env
       image: elestio/uptime-kuma:latest
       restart: always
       healthcheck:

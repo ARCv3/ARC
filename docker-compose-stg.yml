@@ -4,6 +4,8 @@ name: arc-stg
 services:
 
   uptime-kuma-stg:
+      env_file:
+        - .env
       image: elestio/uptime-kuma:latest
       restart: always
       healthcheck:
