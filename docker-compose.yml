@@ -2,6 +2,16 @@ version: '3.8'
 
 services:
 
+  uptime-kuma:
+      image: elestio/uptime-kuma:latest
+      restart: always
+      healthcheck:
+      disable: true
+      volumes:
+      - ./kuma_data:/app/data
+      ports:
+      - 3050:3001
+
   mongo:
     image: mongo:7.0
     env_file:
@@ -93,3 +103,4 @@ networks:
 volumes:
   mongo_data:
   mongo_config:
+  kuma_data:

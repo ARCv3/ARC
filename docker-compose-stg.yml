@@ -2,6 +2,16 @@ version: '3.8'
 name: arc-stg
 
 services:
+
+  uptime-kuma-stg:
+      image: elestio/uptime-kuma:latest
+      restart: always
+      healthcheck:
+      disable: true
+      volumes:
+      - ./kuma_data_stg:/app/data
+      ports:
+      - 3051:3001
   
   mongo-stg:
     image: mongo:7.0
@@ -102,3 +112,4 @@ networks:
 volumes:
   mongo_data_stg:
   mongo_config_stg:
+  kuma_data_stg:
