@@ -10,9 +10,11 @@ services:
       healthcheck:
         disable: true
       volumes:
-      - ./kuma_data:/app/data
+      - kuma_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       ports:
       - 3050:3001
+      
 
   mongo:
     image: mongo:7.0
