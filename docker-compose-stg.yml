@@ -9,7 +9,7 @@ services:
       image: elestio/uptime-kuma:latest
       restart: always
       healthcheck:
-      disable: true
+        disable: true
       volumes:
       - ./kuma_data_stg:/app/data
       ports:
