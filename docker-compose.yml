@@ -93,3 +93,4 @@ networks:
 volumes:
   mongo_data:
   mongo_config:
+  kuma_data:
