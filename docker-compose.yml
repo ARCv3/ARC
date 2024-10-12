@@ -2,20 +2,6 @@ version: '3.8'
 
 services:
 
-  uptime-kuma:
-      env_file:
-        - .env
-      image: elestio/uptime-kuma:latest
-      restart: always
-      healthcheck:
-        disable: true
-      volumes:
-      - kuma_data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      ports:
-      - 3050:3001
-      
-
   mongo:
     image: mongo:7.0
     env_file:
@@ -66,7 +52,7 @@ services:
     container_name: arc3-api
     restart: on-failure
     ports:
-      - 3030:3030
+      - 3000:3000
     networks:
       - common-net
 
