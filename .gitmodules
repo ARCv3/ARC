@@ -10,3 +10,6 @@
 [submodule "ARC3"]
 	path = ARC3
 	url = https://github.com/ARCv3/ARC3
+[submodule "unity"]
+	path = unity
+	url = https://github.com/ARCv3/unity

@@ -7,6 +7,8 @@ services:
       env_file:
         - .env
       image: elestio/uptime-kuma:latest
+      environment:
+        - PORT=3030
       restart: always
       healthcheck:
         disable: true
@@ -86,6 +88,21 @@ services:
     restart: on-failure
     ports:
       - 3040:3030
+    networks:
+      - common-net-stg
+
+  unity-stg:
+    environment:
+      - PORT=3000
+    depends_on:
+      - arc-api-stg
+    image: unity
+    build: 
+      dockerfile: unity.Dockerfile
+    container_name: unity-stg
+    restart: on-failure
+    ports:
+      - 3050:3000
     networks:
       - common-net-stg
 
