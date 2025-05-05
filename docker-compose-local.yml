@@ -1,0 +1,90 @@
+name: arc-local
+
+services:
+
+    arc3-local:
+        env_file:
+          - .env
+        depends_on:
+          - mongo-local
+        image: arc3-local
+        build:
+          dockerfile: arc3.Dockerfile
+        container_name: arc3-local
+
+    mongo-local:
+        image: mongo:7.0
+        env_file:
+          - .env
+        container_name: mongo-local
+        restart: always
+        environment:
+          - MONGO_INITDB_ROOT_USERNAME=root
+          - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+        volumes:
+          - mongo_data_local:/data/db
+          - mongo_config_local:/data/configdb
+          - ./keys/mongo.keyfile:/data/mongo.keyfile
+        ports:
+          - 27018:27017
+
+
+    mongo_admin_ui:
+        image: mongo-express
+        env_file:
+            - .env
+        environment:
+            - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+            - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+            - ME_CONFIG_MONGODB_SERVER=mongo-local
+            - ME_CONFIG_BASICAUTH_USERNAME=admin
+            - ME_CONFIG_BASICAUTH_PASSWORD=${EXPRESS_PWRD}
+        container_name: mongo_admin_ui
+        ports:
+            - 8081:8081
+
+    arc-api-local:
+        env_file:
+          - .env
+        image: arc3-api-local
+        build:
+            context: ARC3-API
+            dockerfile: Dockerfile
+            args:
+                - fullchain=${FULLCHAIN}
+                - privkey=${PRIVKEY}
+        container_name: arc3-api-local
+        restart: on-failure
+        ports:
+          - 3040:3030
+
+    unity-local:
+        environment:
+          - PORT=3000
+          - UNITY_BASE_URI=unity.local.billiecord.com
+          - UNITY_API_BASE_URI=api.local.billiecord.com
+        depends_on:
+          - arc-api-local
+        image: unity
+        build:
+            context: unity
+            dockerfile: Dockerfile
+        container_name: unity-local
+        restart: on-failure
+        ports:
+          - 3050:3000
+
+    app:
+        image: 'jc21/nginx-proxy-manager:latest'
+        restart: unless-stopped
+        ports:
+          - '80:80'
+          - '81:81'
+          - '443:443'
+        volumes:
+          - ./data:/data
+          - ./letsencrypt:/etc/letsencrypt
+
+volumes:
+  mongo_data_local:
+  mongo_config_local:

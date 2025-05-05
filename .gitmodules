@@ -13,3 +13,9 @@
 [submodule "unity"]
 	path = unity
 	url = https://github.com/ARCv3/unity
+[submodule "ops-infrastructure-stage"]
+	path = ops-infrastructure-stage
+	url = https://github.com/ARCv3/ops-infrastructure-stage
+[submodule "ops-infrastructure-live"]
+	path = ops-infrastructure-live
+	url = https://github.com/ARCv3/ops-infrastructure-live

@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "type": "dotnet",
+            "name": "Dotnet configuration",
+            "projectPath": "$WORKSPACE_DIR$/ARC3/ARC3/arc3.csproj",
+            "workingDir": "$WORKSPACE_DIR$/ARC3/ARC3",
+            "environmentFile": "$WORKSPACE_DIR$/.env",
+            "args": []
+        }
+    ]
+}
