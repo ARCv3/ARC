@@ -2,90 +2,86 @@ version: '3.8'
 
 services:
 
-  mongo:
-    image: mongo:7.0
-    env_file:
-      - .env
-    container_name: mongo
-    restart: always
-    networks:
-      - common-net
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-    volumes:
-      - mongo_data:/data/db
-      - mongo_config:/data/configdb
-      - ./keys/mongo.keyfile:/data/mongo.keyfile
-    ports:
-      - 27017:27017
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/arc3 --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
+    unity:
+        environment:
+          - PORT=${UNITY_PORT}
+          - UNITY_API_BASE_URI=${UNITY_API_BASE_URI}
+          - UNITY_BASE_URI=${UNITY_BASE_URI}
+          - UNITY_DEBUG=${UNITY_DEBUG}
+          - USE_HTTPS=${USE_HTTPS}
+          - STATUS_SITE_URL=${STATUS_SITE_URL}
+          - SITE_TITLE=${SITE_TITLE}
+          - SITE_DESCRIPTION_META=${SITE_DESCRIPTION_META}
+          - SITE_DESCRIPTION=${SITE_DESCRIPTION}
+          - SITE_HERO_IMAGE=${SITE_HERO_IMAGE}
+        image: 140023379914.dkr.ecr.us-east-2.amazonaws.com/unity:${UNITY_VER}
+        depends_on:
+          - arc3-api
+        container_name: unity
+        restart: on-failure
+        ports:
+          - 3040:${UNITY_PORT}
 
-  arc3:
-    env_file:
-      - .env
-    depends_on:
-      - mongo
-    image: arc3
-    build:
-      dockerfile: arc3.Dockerfile
-    container_name: arc3
-    networks:
-      - common-net
+    arc3:
+        environment:
+          - MONGODB_URI=${MONGODB_URI}
+          - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+          - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+          - GUILD_ID=${GUILD_ID}
+          - TOKEN=${TOKEN}
+        image: 140023379914.dkr.ecr.us-east-2.amazonaws.com/arc3:${ARC3_VER}
+        container_name: arc3
+        restart: on-failure
 
-  arc-api:
-    env_file:
-      - .env
-    depends_on:
-      - arc3
-    image: arc3-api
-    build:
-      dockerfile: arc3-api.Dockerfile
-      args:
-        - fullchain=${FULLCHAIN}
-        - privkey=${PRIVKEY}
-    container_name: arc3-api
-    restart: on-failure
-    ports:
-      - 3030:3030
-    networks:
-      - common-net
+    arc3-api:
+        environment:
+          - MONGODB_URI=${MONGODB_URI}
+          - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+          - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+          - CLIENT_REDIRECT_URI=${CLIENT_REDIRECT_URI}
+          - DIRECT_URL=${DIRECT_URL}
+          - DISCORD_REDIRECT_URI=${DISCORD_REDIRECT_URI}
+          - FULLCHAIN=${FULLCHAIN}
+          - HOSTED_URL=${HOSTED_URL}
+          - JWT_SECRET=${JWT_SECRET}
+          - PORT=${API_PORT}
+          - PRIVKEY=${PRIVKEY}
+          - TOKEN=${TOKEN}
+        image: 140023379914.dkr.ecr.us-east-2.amazonaws.com/arc3-api:${ARC3_API_VER}
+        container_name: arc3-api
+        restart: on-failure
+        ports:
+          - 3060:${API_PORT}
 
-  arc-tasks:
-    env_file:
-      - .env
-    depends_on:
-      - mongo
-    image: arc-tasks
-    build: 
-      dockerfile: arc3-tasks.Dockerfile
-    container_name: arc3-tasks
-    networks:
-      - common-net
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.data-compliance.schedule: "@every 12h"
-      ofelia.job-exec.data-compliance.command: "node data-compliance.js"
-      ofelia.job-exec.backup-db.schedule: "@every 24h"
-      ofelia.job-exec.backup-db.command: "node backup-db.js Guilds appeals comments guild_configs transcripts user_notes"
-    volumes:
-      - ./db-backups:/app/out
+    mongo:
+        image: mongo:7.0
+        env_file:
+          - .env
+        container_name: mongo
+        restart: always
+        environment:
+          - MONGO_INITDB_ROOT_USERNAME=root
+          - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+        volumes:
+          - mongo_data:/data/db
+          - mongo_config:/data/configdb
+          - ./keys/mongo.keyfile:/data/mongo.keyfile
+        ports:
+          - 27018:27017
 
-  scheduler:
-    container_name: scheduler
-    networks:
-      - common-net
-    image: mcuadros/ofelia:latest
-    depends_on:
-      - arc-tasks
-    command: daemon --docker -f label=com.docker.compose.project=${COMPOSE_PROJECT_NAME}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+    mongo_admin_ui:
+        image: mongo-express
+        env_file:
+            - .env
+        environment:
+            - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+            - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+            - ME_CONFIG_MONGODB_SERVER=mongo
+            - ME_CONFIG_BASICAUTH_USERNAME=admin
+            - ME_CONFIG_BASICAUTH_PASSWORD=${EXPRESS_PWRD}
+        container_name: mongo_admin_ui
+        ports:
+            - 8081:8081
 
 networks:
   common-net: {}
